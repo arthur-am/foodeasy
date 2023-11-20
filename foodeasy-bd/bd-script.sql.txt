@@ -1,0 +1,648 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema foodeasy
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema foodeasy
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `foodeasy` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `foodeasy` ;
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`documento`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`documento` (
+  `documento_id` INT NOT NULL AUTO_INCREMENT,
+  `tipo_documento` VARCHAR(255) NULL DEFAULT NULL,
+  `arquivo` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`documento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`treinamentodado`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`treinamentodado` (
+  `treinamento_id` INT NOT NULL AUTO_INCREMENT,
+  `restaurante_id` INT NULL DEFAULT NULL,
+  `treinamento` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`treinamento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`perfilresponsavel`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`perfilresponsavel` (
+  `perfil_id` INT NOT NULL AUTO_INCREMENT,
+  `restaurante_id` INT NULL DEFAULT NULL,
+  `perfil` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`perfil_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`inspecao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`inspecao` (
+  `inspecao_id` INT NOT NULL AUTO_INCREMENT,
+  `documento_id` INT NULL DEFAULT NULL,
+  `SolicitacaoID` INT NOT NULL,
+  `Higiene` VARCHAR(255) NOT NULL,
+  `QualidadeAlimentos` VARCHAR(255) NOT NULL,
+  `CumprimentoDiretrizes` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`inspecao_id`),
+  INDEX `SolicitacaoID` (`SolicitacaoID` ASC) VISIBLE,
+  INDEX `documento_id` (`documento_id` ASC) VISIBLE,
+  CONSTRAINT `inspecao_ibfk_1`
+    FOREIGN KEY (`SolicitacaoID`)
+    REFERENCES `foodeasy`.`solicitacaoparceria` (`ID`),
+  CONSTRAINT `inspecao_ibfk_2`
+    FOREIGN KEY (`documento_id`)
+    REFERENCES `foodeasy`.`documento` (`documento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`avaliacao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`avaliacao` (
+  `avaliacao_id` INT NOT NULL AUTO_INCREMENT,
+  `tipo_avaliado` ENUM('Restaurante', 'Entregador', 'Pedido') NULL DEFAULT NULL,
+  `tipo_avaliado_id` INT NULL DEFAULT NULL,
+  `comentario` TEXT NULL DEFAULT NULL,
+  `data_hora` DATETIME NULL DEFAULT NULL,
+  `avaliacao` ENUM('Ruim', 'Regular', 'Bom', 'Excelente') NULL DEFAULT NULL,
+  PRIMARY KEY (`avaliacao_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`restaurante`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`restaurante` (
+  `restaurante_id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NULL DEFAULT NULL,
+  `telefone` VARCHAR(20) NULL DEFAULT NULL,
+  `endereco` VARCHAR(255) NULL DEFAULT NULL,
+  `saude_financeira` DECIMAL(10,2) NULL DEFAULT NULL,
+  `inspecao_higiene` VARCHAR(255) NULL DEFAULT NULL,
+  `qualidade_alimentos` VARCHAR(255) NULL DEFAULT NULL,
+  `cumprimento_diretrizes` VARCHAR(255) NULL DEFAULT NULL,
+  `aprovacao_gerente` VARCHAR(255) NULL DEFAULT NULL,
+  `decisao_final` VARCHAR(255) NULL DEFAULT NULL,
+  `perfil_plataforma` TEXT NULL DEFAULT NULL,
+  `treinamento_suporte` TEXT NULL DEFAULT NULL,
+  `treinamento_dado_id` INT NULL DEFAULT NULL,
+  `perfil_responsavel_id` INT NULL DEFAULT NULL,
+  `documento_id` INT NULL DEFAULT NULL,
+  `inspecao_id` INT NULL DEFAULT NULL,
+  `disponibilidade` ENUM('aberto', 'fechado', 'ocupado', 'outra_opcao') NULL DEFAULT NULL,
+  `avaliacao_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`restaurante_id`),
+  INDEX `documento_id` (`documento_id` ASC) VISIBLE,
+  INDEX `treinamento_dado_id` (`treinamento_dado_id` ASC) VISIBLE,
+  INDEX `perfil_responsavel_id` (`perfil_responsavel_id` ASC) VISIBLE,
+  INDEX `inspecao_id` (`inspecao_id` ASC) VISIBLE,
+  INDEX `avaliacao_id` (`avaliacao_id` ASC) VISIBLE,
+  CONSTRAINT `restaurante_ibfk_1`
+    FOREIGN KEY (`documento_id`)
+    REFERENCES `foodeasy`.`documento` (`documento_id`),
+  CONSTRAINT `restaurante_ibfk_2`
+    FOREIGN KEY (`treinamento_dado_id`)
+    REFERENCES `foodeasy`.`treinamentodado` (`treinamento_id`),
+  CONSTRAINT `restaurante_ibfk_3`
+    FOREIGN KEY (`perfil_responsavel_id`)
+    REFERENCES `foodeasy`.`perfilresponsavel` (`perfil_id`),
+  CONSTRAINT `restaurante_ibfk_4`
+    FOREIGN KEY (`inspecao_id`)
+    REFERENCES `foodeasy`.`inspecao` (`inspecao_id`),
+  CONSTRAINT `restaurante_ibfk_5`
+    FOREIGN KEY (`avaliacao_id`)
+    REFERENCES `foodeasy`.`avaliacao` (`avaliacao_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`solicitacaoparceria`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`solicitacaoparceria` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `RestauranteID` INT NOT NULL,
+  `Contato` VARCHAR(255) NOT NULL,
+  `Email` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `RestauranteID` (`RestauranteID` ASC) VISIBLE,
+  CONSTRAINT `solicitacaoparceria_ibfk_1`
+    FOREIGN KEY (`RestauranteID`)
+    REFERENCES `foodeasy`.`restaurante` (`restaurante_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`analisefinanceira`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`analisefinanceira` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `SolicitacaoID` INT NOT NULL,
+  `ReceitasAnuais` DECIMAL(10,2) NOT NULL,
+  `DespesasAnuais` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `SolicitacaoID` (`SolicitacaoID` ASC) VISIBLE,
+  CONSTRAINT `analisefinanceira_ibfk_1`
+    FOREIGN KEY (`SolicitacaoID`)
+    REFERENCES `foodeasy`.`solicitacaoparceria` (`ID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`aprovacaogerenciaparceiros`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`aprovacaogerenciaparceiros` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `SolicitacaoID` INT NOT NULL,
+  `Aprovacao` VARCHAR(255) NOT NULL,
+  `Comentarios` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `SolicitacaoID` (`SolicitacaoID` ASC) VISIBLE,
+  CONSTRAINT `aprovacaogerenciaparceiros_ibfk_1`
+    FOREIGN KEY (`SolicitacaoID`)
+    REFERENCES `foodeasy`.`solicitacaoparceria` (`ID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`usuario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`usuario` (
+  `usuario_id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NULL DEFAULT NULL,
+  `email` VARCHAR(255) NULL DEFAULT NULL,
+  `senha` CHAR(64) NULL DEFAULT NULL,
+  `login` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`usuario_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`menurestaurante`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`menurestaurante` (
+  `menu_id` INT NOT NULL AUTO_INCREMENT,
+  `restaurante_id` INT NULL DEFAULT NULL,
+  `nome_item` VARCHAR(255) NULL DEFAULT NULL,
+  `descricao_item` TEXT NULL DEFAULT NULL,
+  `preco` DECIMAL(10,2) NULL DEFAULT NULL,
+  `oferta` TINYINT(1) NULL DEFAULT NULL,
+  `status_aprovacao` ENUM('pendente', 'aprovado', 'rejeitado') NULL DEFAULT NULL,
+  PRIMARY KEY (`menu_id`),
+  INDEX `restaurante_id` (`restaurante_id` ASC) VISIBLE,
+  CONSTRAINT `menurestaurante_ibfk_1`
+    FOREIGN KEY (`restaurante_id`)
+    REFERENCES `foodeasy`.`restaurante` (`restaurante_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`aprovacaomenu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`aprovacaomenu` (
+  `aprovacao_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NULL DEFAULT NULL,
+  `menu_id` INT NULL DEFAULT NULL,
+  `status_aprovacao` ENUM('pendente', 'aprovado', 'rejeitado') NULL DEFAULT NULL,
+  PRIMARY KEY (`aprovacao_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  INDEX `menu_id` (`menu_id` ASC) VISIBLE,
+  CONSTRAINT `aprovacaomenu_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `foodeasy`.`usuario` (`usuario_id`),
+  CONSTRAINT `aprovacaomenu_ibfk_2`
+    FOREIGN KEY (`menu_id`)
+    REFERENCES `foodeasy`.`menurestaurante` (`menu_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`entregador`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`entregador` (
+  `entregador_id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NULL DEFAULT NULL,
+  `veiculo_entrega` VARCHAR(255) NULL DEFAULT NULL,
+  `disponibilidade` ENUM('disponivel', 'ocupado') NULL DEFAULT NULL,
+  `documento_id` INT NULL DEFAULT NULL,
+  `avaliacao_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`entregador_id`),
+  INDEX `documento_id` (`documento_id` ASC) VISIBLE,
+  INDEX `avaliacao_id` (`avaliacao_id` ASC) VISIBLE,
+  CONSTRAINT `entregador_ibfk_1`
+    FOREIGN KEY (`documento_id`)
+    REFERENCES `foodeasy`.`documento` (`documento_id`),
+  CONSTRAINT `entregador_ibfk_2`
+    FOREIGN KEY (`avaliacao_id`)
+    REFERENCES `foodeasy`.`avaliacao` (`avaliacao_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`atendimentocliente`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`atendimentocliente` (
+  `atendimento_id` INT NOT NULL AUTO_INCREMENT,
+  `cliente_id` INT NULL DEFAULT NULL,
+  `restaurante_id` INT NULL DEFAULT NULL,
+  `entregador_id` INT NULL DEFAULT NULL,
+  `data_abertura` DATETIME NULL DEFAULT NULL,
+  `prioridade` ENUM('Baixa', 'Média', 'Alta') NULL DEFAULT NULL,
+  `equipe_responsavel` ENUM('Suporte Técnico', 'Restaurante', 'Terceiros') NULL DEFAULT NULL,
+  `solucao_proposta` TEXT NULL DEFAULT NULL,
+  `feedback_cliente` TEXT NULL DEFAULT NULL,
+  `aceitar_solucao` ENUM('Sim', 'Não') NULL DEFAULT NULL,
+  PRIMARY KEY (`atendimento_id`),
+  INDEX `cliente_id` (`cliente_id` ASC) VISIBLE,
+  INDEX `restaurante_id` (`restaurante_id` ASC) VISIBLE,
+  INDEX `entregador_id` (`entregador_id` ASC) VISIBLE,
+  CONSTRAINT `atendimentocliente_ibfk_1`
+    FOREIGN KEY (`cliente_id`)
+    REFERENCES `foodeasy`.`usuario` (`usuario_id`),
+  CONSTRAINT `atendimentocliente_ibfk_2`
+    FOREIGN KEY (`restaurante_id`)
+    REFERENCES `foodeasy`.`restaurante` (`restaurante_id`),
+  CONSTRAINT `atendimentocliente_ibfk_3`
+    FOREIGN KEY (`entregador_id`)
+    REFERENCES `foodeasy`.`entregador` (`entregador_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`comunicacaorestaurante`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`comunicacaorestaurante` (
+  `comunicacao_id` INT NOT NULL AUTO_INCREMENT,
+  `atendimento_id` INT NULL DEFAULT NULL,
+  `detalhes_problema` TEXT NULL DEFAULT NULL,
+  `comunicacao_direta` ENUM('Sim', 'Não') NULL DEFAULT NULL,
+  PRIMARY KEY (`comunicacao_id`),
+  INDEX `atendimento_id` (`atendimento_id` ASC) VISIBLE,
+  CONSTRAINT `comunicacaorestaurante_ibfk_1`
+    FOREIGN KEY (`atendimento_id`)
+    REFERENCES `foodeasy`.`atendimentocliente` (`atendimento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`comunicacaoterceiros`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`comunicacaoterceiros` (
+  `comunicacao_id` INT NOT NULL AUTO_INCREMENT,
+  `atendimento_id` INT NULL DEFAULT NULL,
+  `detalhes_problema` TEXT NULL DEFAULT NULL,
+  `canal_comunicacao` ENUM('Chat', 'Ligação', 'E-mail') NULL DEFAULT NULL,
+  PRIMARY KEY (`comunicacao_id`),
+  INDEX `atendimento_id` (`atendimento_id` ASC) VISIBLE,
+  CONSTRAINT `comunicacaoterceiros_ibfk_1`
+    FOREIGN KEY (`atendimento_id`)
+    REFERENCES `foodeasy`.`atendimentocliente` (`atendimento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`entrega`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`entrega` (
+  `entrega_id` INT NOT NULL AUTO_INCREMENT,
+  `pedido_id` INT NULL DEFAULT NULL,
+  `estimativa_entrega` DATETIME NULL DEFAULT NULL,
+  `local_retirada` VARCHAR(255) NULL DEFAULT NULL,
+  `rota` VARCHAR(255) NULL DEFAULT NULL,
+  `codigo_retirada` VARCHAR(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`entrega_id`),
+  INDEX `pedido_id` (`pedido_id` ASC) VISIBLE,
+  CONSTRAINT `entrega_ibfk_1`
+    FOREIGN KEY (`pedido_id`)
+    REFERENCES `foodeasy`.`pedido` (`pedido_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`pedido`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`pedido` (
+  `pedido_id` INT NOT NULL AUTO_INCREMENT,
+  `cliente_id` INT NULL DEFAULT NULL,
+  `restaurante_id` INT NULL DEFAULT NULL,
+  `data_pedido` DATETIME NULL DEFAULT NULL,
+  `status` ENUM('pendente', 'em_preparacao', 'entregue') NULL DEFAULT NULL,
+  `entregador_id` INT NULL DEFAULT NULL,
+  `entrega_id` INT NULL DEFAULT NULL,
+  `avaliacao_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`pedido_id`),
+  INDEX `cliente_id` (`cliente_id` ASC) VISIBLE,
+  INDEX `restaurante_id` (`restaurante_id` ASC) VISIBLE,
+  INDEX `entregador_id` (`entregador_id` ASC) VISIBLE,
+  INDEX `entrega_id` (`entrega_id` ASC) VISIBLE,
+  INDEX `avaliacao_id` (`avaliacao_id` ASC) VISIBLE,
+  CONSTRAINT `pedido_ibfk_1`
+    FOREIGN KEY (`cliente_id`)
+    REFERENCES `foodeasy`.`usuario` (`usuario_id`),
+  CONSTRAINT `pedido_ibfk_2`
+    FOREIGN KEY (`restaurante_id`)
+    REFERENCES `foodeasy`.`restaurante` (`restaurante_id`),
+  CONSTRAINT `pedido_ibfk_3`
+    FOREIGN KEY (`entregador_id`)
+    REFERENCES `foodeasy`.`entregador` (`entregador_id`),
+  CONSTRAINT `pedido_ibfk_4`
+    FOREIGN KEY (`entrega_id`)
+    REFERENCES `foodeasy`.`entrega` (`entrega_id`),
+  CONSTRAINT `pedido_ibfk_5`
+    FOREIGN KEY (`avaliacao_id`)
+    REFERENCES `foodeasy`.`avaliacao` (`avaliacao_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`produto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`produto` (
+  `produto_id` INT NOT NULL AUTO_INCREMENT,
+  `nome_produto` VARCHAR(255) NULL DEFAULT NULL,
+  `descricao_produto` TEXT NULL DEFAULT NULL,
+  `preco` DECIMAL(10,2) NULL DEFAULT NULL,
+  `imagem_url` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`produto_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`oferta`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`oferta` (
+  `oferta_id` INT NOT NULL AUTO_INCREMENT,
+  `menu_id` INT NULL DEFAULT NULL,
+  `descricao_oferta` TEXT NULL DEFAULT NULL,
+  `valor_original` DECIMAL(10,2) NULL DEFAULT NULL,
+  `valor_final` DECIMAL(10,2) NULL DEFAULT NULL,
+  `desconto_percentual` DECIMAL(5,2) NULL DEFAULT NULL,
+  PRIMARY KEY (`oferta_id`),
+  INDEX `menu_id` (`menu_id` ASC) VISIBLE,
+  CONSTRAINT `oferta_ibfk_1`
+    FOREIGN KEY (`menu_id`)
+    REFERENCES `foodeasy`.`menurestaurante` (`menu_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`itensmenu`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`itensmenu` (
+  `item_menu_id` INT NOT NULL AUTO_INCREMENT,
+  `menu_id` INT NULL DEFAULT NULL,
+  `produto_id` INT NULL DEFAULT NULL,
+  `oferta_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`item_menu_id`),
+  INDEX `menu_id` (`menu_id` ASC) VISIBLE,
+  INDEX `produto_id` (`produto_id` ASC) VISIBLE,
+  INDEX `oferta_id` (`oferta_id` ASC) VISIBLE,
+  CONSTRAINT `itensmenu_ibfk_1`
+    FOREIGN KEY (`menu_id`)
+    REFERENCES `foodeasy`.`menurestaurante` (`menu_id`),
+  CONSTRAINT `itensmenu_ibfk_2`
+    FOREIGN KEY (`produto_id`)
+    REFERENCES `foodeasy`.`produto` (`produto_id`),
+  CONSTRAINT `itensmenu_ibfk_3`
+    FOREIGN KEY (`oferta_id`)
+    REFERENCES `foodeasy`.`oferta` (`oferta_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`detalhespedido`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`detalhespedido` (
+  `detalhes_id` INT NOT NULL AUTO_INCREMENT,
+  `pedido_id` INT NULL DEFAULT NULL,
+  `item_menu_id` INT NULL DEFAULT NULL,
+  `acao` ENUM('adicionar', 'remover', 'alterar') NOT NULL,
+  `novo_item_menu_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`detalhes_id`),
+  INDEX `pedido_id` (`pedido_id` ASC) VISIBLE,
+  INDEX `item_menu_id` (`item_menu_id` ASC) VISIBLE,
+  INDEX `novo_item_menu_id` (`novo_item_menu_id` ASC) VISIBLE,
+  CONSTRAINT `detalhespedido_ibfk_1`
+    FOREIGN KEY (`pedido_id`)
+    REFERENCES `foodeasy`.`pedido` (`pedido_id`),
+  CONSTRAINT `detalhespedido_ibfk_2`
+    FOREIGN KEY (`item_menu_id`)
+    REFERENCES `foodeasy`.`itensmenu` (`item_menu_id`),
+  CONSTRAINT `detalhespedido_ibfk_3`
+    FOREIGN KEY (`novo_item_menu_id`)
+    REFERENCES `foodeasy`.`itensmenu` (`item_menu_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`equipedequalidade`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`equipedequalidade` (
+  `equipe_qualidade_id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NULL DEFAULT NULL,
+  `responsavel_id` INT NULL DEFAULT NULL,
+  `regiao` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`equipe_qualidade_id`),
+  INDEX `responsavel_id` (`responsavel_id` ASC) VISIBLE,
+  CONSTRAINT `equipedequalidade_ibfk_1`
+    FOREIGN KEY (`responsavel_id`)
+    REFERENCES `foodeasy`.`usuario` (`usuario_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`feedbackavaliacaoparceria`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`feedbackavaliacaoparceria` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `SolicitacaoID` INT NOT NULL,
+  `Avaliacao` VARCHAR(255) NOT NULL,
+  `Comentarios` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `SolicitacaoID` (`SolicitacaoID` ASC) VISIBLE,
+  CONSTRAINT `feedbackavaliacaoparceria_ibfk_1`
+    FOREIGN KEY (`SolicitacaoID`)
+    REFERENCES `foodeasy`.`solicitacaoparceria` (`ID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`grupo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`grupo` (
+  `grupo_id` INT NOT NULL AUTO_INCREMENT,
+  `nome_grupo` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`grupo_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`itempedido`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`itempedido` (
+  `item_pedido_id` INT NOT NULL AUTO_INCREMENT,
+  `pedido_id` INT NULL DEFAULT NULL,
+  `menu_item_id` INT NULL DEFAULT NULL,
+  `quantidade` INT NULL DEFAULT NULL,
+  `preco_unitario` DECIMAL(10,2) NULL DEFAULT NULL,
+  `detalhes_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`item_pedido_id`),
+  INDEX `pedido_id` (`pedido_id` ASC) VISIBLE,
+  INDEX `menu_item_id` (`menu_item_id` ASC) VISIBLE,
+  INDEX `detalhes_id` (`detalhes_id` ASC) VISIBLE,
+  CONSTRAINT `itempedido_ibfk_1`
+    FOREIGN KEY (`pedido_id`)
+    REFERENCES `foodeasy`.`pedido` (`pedido_id`),
+  CONSTRAINT `itempedido_ibfk_2`
+    FOREIGN KEY (`menu_item_id`)
+    REFERENCES `foodeasy`.`menurestaurante` (`menu_id`),
+  CONSTRAINT `itempedido_ibfk_3`
+    FOREIGN KEY (`detalhes_id`)
+    REFERENCES `foodeasy`.`detalhespedido` (`detalhes_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`itensselecionados`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`itensselecionados` (
+  `item_selecionado_id` INT NOT NULL AUTO_INCREMENT,
+  `pedido_id` INT NULL DEFAULT NULL,
+  `item_menu_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`item_selecionado_id`),
+  INDEX `pedido_id` (`pedido_id` ASC) VISIBLE,
+  INDEX `item_menu_id` (`item_menu_id` ASC) VISIBLE,
+  CONSTRAINT `itensselecionados_ibfk_1`
+    FOREIGN KEY (`pedido_id`)
+    REFERENCES `foodeasy`.`pedido` (`pedido_id`),
+  CONSTRAINT `itensselecionados_ibfk_2`
+    FOREIGN KEY (`item_menu_id`)
+    REFERENCES `foodeasy`.`itensmenu` (`item_menu_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`perfilgrupo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`perfilgrupo` (
+  `perfil_id` INT NOT NULL AUTO_INCREMENT,
+  `nome_grupo` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`perfil_id`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 7
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`problemastecnicospedido`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`problemastecnicospedido` (
+  `problema_id` INT NOT NULL AUTO_INCREMENT,
+  `atendimento_id` INT NULL DEFAULT NULL,
+  `detalhes_problema` TEXT NULL DEFAULT NULL,
+  `rastreamento_tempo_real` ENUM('Sim', 'Não') NULL DEFAULT NULL,
+  PRIMARY KEY (`problema_id`),
+  INDEX `atendimento_id` (`atendimento_id` ASC) VISIBLE,
+  CONSTRAINT `problemastecnicospedido_ibfk_1`
+    FOREIGN KEY (`atendimento_id`)
+    REFERENCES `foodeasy`.`atendimentocliente` (`atendimento_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `foodeasy`.`usuariogrupo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `foodeasy`.`usuariogrupo` (
+  `usuario_grupo_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NULL DEFAULT NULL,
+  `grupo_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`usuario_grupo_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  INDEX `grupo_id` (`grupo_id` ASC) VISIBLE,
+  CONSTRAINT `usuariogrupo_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `foodeasy`.`usuario` (`usuario_id`),
+  CONSTRAINT `usuariogrupo_ibfk_2`
+    FOREIGN KEY (`grupo_id`)
+    REFERENCES `foodeasy`.`grupo` (`grupo_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
